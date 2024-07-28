@@ -21,7 +21,7 @@ class Drawer():
         self.temp_line = None
 
         self.canvas.shapes = [
-            Line(turtle.Turtle(), (-10, -10), (50, 50)),
+            Circle(turtle.Turtle(), 10, (0, 0)),
             Line(turtle.Turtle(), (-10, 40), (50, -50)),
         ]
         self.canvas.draw()

@@ -26,10 +26,25 @@ class Circle(Shape):
         self.center = center
 
     def draw(self):
+        self.clear()
         self.pen.penup()
         self.pen.goto(self.center)
         self.pen.pendown()
         self.pen.circle(self.r)
+        self.pen.penup()
+        if self.selected:
+            self.pen.goto(self.center)
+            points = []
+            for i in range(8):
+                deg = 0.125 * i * math.pi
+                points.append([self.r * math.ceil(math.sin(deg)), self.r * math.ceil(math.cos(deg))])
+
+            for point in points:
+                self.pen.penup()
+                self.pen.goto(point)
+                self.pen.pendown()
+                self.pen.circle(2)
+
 
     def point_in_shape(self, point):
         return geo.distance(self.center, point) < self.r

@@ -9,4 +9,3 @@ screen.tracer(0)
 drawer = Drawer(screen)
 screen.onclick(drawer.onclick)
 screen.mainloop()
-
