@@ -1,5 +1,6 @@
 from src.canvas import Canvas
 from src.shape import *
+from src.button import Button
 import turtle, enum
 
 class Action(enum.Enum):
@@ -14,6 +15,17 @@ class State(enum.Enum):
 
 class Drawer():
     def __init__(self, screen):
+        self.screen = screen
+        self.screen.screensize(700, 600)
+        screen_sz = self.screen.screensize()
+        print("screen_sz: ", screen_sz)
+        self.hw = screen_sz[0] / 2
+        self.hh = screen_sz[1] / 2 
+        self.gap = 5
+        self.btn_sz = (60, -30)
+
+        self.create_buttons()
+
         self.canvas = Canvas()
         self.action = Action.SELECT
         self.state = State.END
@@ -26,6 +38,29 @@ class Drawer():
         ]
         self.canvas.draw()
     
+    def create_buttons(self):
+        btn_gap = self.btn_sz[0] + self.gap
+        self.buttons_map = {
+            Action.SELECT: Button(turtle.Turtle(), (-self.hw + self.gap, self.hh - self.gap), self.btn_sz, "Select"),
+            Action.LINE: Button(turtle.Turtle(), (-self.hw + self.gap + btn_gap * 1, self.hh - self.gap), self.btn_sz, "Line"),
+        }
+        self.buttons_map[Action.SELECT].selected = True
+        for act, btn in self.buttons_map.items():
+            btn.draw()
+
+    def click_on_button(self, x, y):
+        old_act = self.action
+        new_act = None
+        for act, btn in self.buttons_map.items():
+            if btn.inbox((x, y)):
+                new_act = act
+                break
+        if new_act and new_act != old_act:
+            self.action = new_act
+            self.buttons_map[old_act].set_selection(False)
+            self.buttons_map[new_act].set_selection(True)
+        return new_act          
+
     def make_line(self, x, y):
         if self.action != Action.LINE:
             return
@@ -40,7 +75,10 @@ class Drawer():
             self.canvas.shapes.append(self.temp_line)
 
     def onclick(self, x, y): 
-        if self.action == Action.LINE:
+        if self.click_on_button(x, y):
+            # don't draw
+            pass
+        elif self.action == Action.LINE:
             self.make_line(x, y)
         elif self.action == Action.SELECT:
             self.canvas.select_shapes((x, y))
