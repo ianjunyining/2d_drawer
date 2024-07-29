@@ -30,6 +30,16 @@ class Shape():
 
     def point_in_shape(self, point):
         raise NotImplemented("Shape: point_in_shape() is not implemented")
+    
+    # delta: (dx, dy)
+    def translate(self, delta):
+        raise NotImplemented("Shape: translate() is not implemented")
+
+    # rotate around center.
+    # if center is None, rotate round the shape center
+    def rotate(self, angle_in_deg, center=None):
+        raise NotImplemented("Shape: rotate() is not implemented")
+
 
 class Circle(Shape):
     def __init__(self, pen: turtle.Turtle, r, center) -> None:
