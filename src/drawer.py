@@ -99,4 +99,43 @@ class Drawer():
         elif self.action == Action.CIRCLE:
             self.make_circle(x, y)
     
+    def onkeyarrow(self, key_pressed):
+        key_translation = {
+            "up" : [0, 1],
+            "down" : [0, -1],
+            "left" : [-1, 0],
+            "right" : [1, 0],
+        }
+        for key in key_translation.keys():
+            if key == key_pressed:
+                for shape in self.canvas.shapes:
+                    x0, y0 = shape.center
+                    if shape.selected:
+                        shape.center = (
+                            x0 + key_translation[key][0], 
+                            y0 + key_translation[key][1]
+                        )
+        for shape in self.canvas.shapes:
+            shape.draw()
+    
+    def onkeydelete(self):
+        print("enter: ")
+        for i in range(len(self.canvas.shapes)):
+            if self.canvas.shapes[i].selected:
+                self.canvas.shapes[i].clear()
+                del self.canvas.shapes[i]
+
+    def onkeyup(self):
+        self.onkeyarrow("up")
+
+    def onkeydown(self):
+        self.onkeyarrow("down")
+
+    def onkeyleft(self):
+        self.onkeyarrow("left")
+
+    def onkeyright(self):
+        self.onkeyarrow("right")
+
+
 

@@ -8,10 +8,22 @@ class Shape():
     def __init__(self, pen: turtle.Turtle) -> None:
         self.selected = False
         self.pen = pen
+        self.sr = 5
         self.pen.hideturtle()
 
     def draw(self):
         pass
+
+    def get_selection_points(self):
+        raise NotImplemented("Shape: get_selection_points() is not implemented")
+
+    def draw_selection_points(self):
+        for point in self.get_selection_points():
+            self.pen.penup()
+            self.pen.goto(point[0], point[1] - self.sr/2)
+            self.pen.pendown()
+            self.pen.circle(self.sr)
+            self.pen.penup()
 
     def clear(self):
         self.pen.clear()
@@ -33,23 +45,21 @@ class Circle(Shape):
         self.pen.pendown()
         self.pen.circle(self.r)
         self.pen.penup()
-        if self.selected:
-            points = []
-            for i in range(4):
-                rnd = i * math.pi / 2
-                points.append(
-                    (
-                        x0 + self.r * math.cos(rnd), 
-                        y0 + self.r * math.sin(rnd)
-                    )
+        if self.selected and self.r > 0:
+            self.draw_selection_points()
+    
+    def get_selection_points(self):
+        x0, y0 = self.center
+        points = []
+        for i in range(4):
+            rnd = i * math.pi / 2
+            points.append(
+                (
+                    x0 + self.r * math.cos(rnd), 
+                    y0 + self.r * math.sin(rnd)
                 )
-            sr = 5
-            for point in points:
-                self.pen.penup()
-                self.pen.goto(point[0], point[1] - sr/2)
-                self.pen.pendown()
-                self.pen.circle(sr)
-                self.pen.penup()
+            )
+        return points
 
 
     def point_in_shape(self, point):
@@ -67,39 +77,35 @@ class Line(Shape):
         self.pen.penup()
         self.pen.goto(self.point1)
         self.pen.pendown()
-        if self.selected:
-            self.pen.circle(2)
         self.pen.goto(self.point2)
-        if self.selected:
-            self.pen.circle(2)
         self.pen.penup()
+        if self.selected:
+            self.draw_selection_points()
 
+    def get_selection_points(self):
+        return [self.point1, self.point2]
+    
     def point_in_shape(self, point):
         return geo.distance_point_to_segment(self.point1, self.point2, point) <= 5
 
 
 class Polygon(Shape):
-    def __init__(self, sides, center, d, deg=0) -> None:
+    def __init__(self, pen: turtle.Turtle, sides) -> None:
         super().__init__()
         self.sides = sides
-        self.d = d
-        self.center = center
-        self.deg = deg
+        self.pen = pen
 
-    def draw(self, pen: turtle):
-        dsides = self.sides * 2
-        pen.penup()
-        pen.goto(self.center)
-        pen.pendown()
-        for angle in range(dsides):
-            pen.goto
-            (
-                pen.xcor() + self.d * math.sin((angle + self.deg) * ((math.pi * 4) / dsides)), 
-                pen.ycor() + self.d * math.cos((angle + self.deg) * ((math.pi * 4) / dsides))
-            )
-        pen.penup()
-    
+    def draw(self):
+        for side in self.sides:
+            self.pen.goto(side)
 
+    def get_selection_points(self):
+        return self.sides
     
-    
-
+    def point_in_shape(self, point):
+        for side in self.sides:
+            if side[0] < 0:
+                if side[1] < 0:
+                    if side[0] > point[0] or side[0] > point[0]:
+                        return False
+        return 
