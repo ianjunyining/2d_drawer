@@ -39,3 +39,6 @@ def distance(pt1, pt2):
     x1, y1 = pt1
     x2, y2 = pt2
     return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
+def translate(point : tuple, delta : tuple):
+    return (point[0] + delta[0], point[1] + delta[1])

@@ -25,7 +25,7 @@ class Button:
         self.pen.goto(x0, y0)
         self.pen.penup()
         self.pen.goto(x0 + dx / 5, y0 + dy - dy / 3)
-        self.pen.write(self.txt, font=("Arial", 16))
+        self.pen.write(self.txt, font=("Arial", 12))
 
     def set_selection(self, selected: bool):
         if self.selected != selected:

@@ -18,11 +18,27 @@ class Canvas():
                 shape.draw()
 
     def delete_selected(self):
-        pass
+        old_shapes = self.shapes
+        self.shapes = []
+        for shape in old_shapes:
+            if shape.selected:
+                shape.clear()
+            else:
+                self.shapes.append(shape)
+
+    def deselect_all(self):
+        print("deselect_all")
+        for shape in self.shapes:
+            shape.selected = False
+            shape.draw()
+            print(shape)
 
     # delta: (dx, dy)
     def translate_selected(self, delta):
-        pass
+        for shape in self.shapes:
+            if shape.selected:
+                shape.translate(delta)
+                shape.draw()
 
     # if only one shape is selected, rotate around the center of the selected shape
     # otherwise, compute the center from the selection points of all selected shapes, 

@@ -5,9 +5,12 @@ import turtle, enum
 
 class Action(enum.Enum):
     SELECT = 1
-    LINE = 2
-    CIRCLE = 3
-    POLYGON = 4
+    DESELECT = 2
+    LINE = 3
+    CIRCLE = 4
+    POLYGON = 5
+    RPOLYGON = 6
+
 
 class State(enum.Enum):
     START = 1
@@ -22,6 +25,7 @@ class Drawer():
         self.hw = screen_sz[0] / 2
         self.hh = screen_sz[1] / 2 
         self.gap = 5
+        self.polygon_sides = -1
         self.btn_sz = (60, -30)
 
         self.create_buttons()
@@ -42,8 +46,11 @@ class Drawer():
         btn_gap = self.btn_sz[0] + self.gap
         self.buttons_map = {
             Action.SELECT: Button(turtle.Turtle(), (-self.hw + self.gap, self.hh - self.gap), self.btn_sz, "Select"),
-            Action.LINE: Button(turtle.Turtle(), (-self.hw + self.gap + btn_gap * 1, self.hh - self.gap), self.btn_sz, "Line"),
-            Action.CIRCLE: Button(turtle.Turtle(), (-self.hw + self.gap + btn_gap * 2, self.hh - self.gap), self.btn_sz, "Circle"),
+            Action.DESELECT: Button(turtle.Turtle(), (-self.hw + self.gap + btn_gap * 1, self.hh - self.gap), self.btn_sz, "Unselect"),
+            Action.LINE: Button(turtle.Turtle(), (-self.hw + self.gap + btn_gap * 2, self.hh - self.gap), self.btn_sz, "Line"),
+            Action.CIRCLE: Button(turtle.Turtle(), (-self.hw + self.gap + btn_gap * 3, self.hh - self.gap), self.btn_sz, "Circle"),
+            Action.POLYGON: Button(turtle.Turtle(), (-self.hw + self.gap + btn_gap * 4, self.hh - self.gap), self.btn_sz, "Polygon"),
+            Action.RPOLYGON: Button(turtle.Turtle(), (-self.hw + self.gap + btn_gap * 5, self.hh - self.gap), self.btn_sz, "RPolygon"),
         }
         self.buttons_map[Action.SELECT].selected = True
         for act, btn in self.buttons_map.items():
@@ -88,42 +95,47 @@ class Drawer():
             self.temp_circle.draw()
             self.canvas.shapes.append(self.temp_circle)
 
+    def make_polygon(self):
+        pass
+
+    def make_regular_polygon(self, x, y):
+        sides = self.screen.textinput("Enter sides", "How many sides?")
+        self.screen.listen()
+        if sides:
+            self.temp_rpolygon = RegularPolygon(turtle.Turtle(), (x, y), int(sides), 100)
+            self.temp_rpolygon.draw()
+            self.canvas.shapes.append(self.temp_rpolygon)
+
     def onclick(self, x, y): 
         if self.click_on_button(x, y):
             # don't draw
             pass
         elif self.action == Action.SELECT:
             self.canvas.select_shapes((x, y))
+        elif self.action == Action.DESELECT:
+            self.canvas.deselect_all()
         elif self.action == Action.LINE:
             self.make_line(x, y)
         elif self.action == Action.CIRCLE:
             self.make_circle(x, y)
+        elif self.action == Action.RPOLYGON:
+            self.make_regular_polygon(x, y)
     
-    def onkeyarrow(self, key_pressed):
+    def onkeyarrow(self, key_pressed, magnitude=1):
         key_translation = {
-            "up" : [0, 1],
-            "down" : [0, -1],
-            "left" : [-1, 0],
-            "right" : [1, 0],
+            "up" : (0, 1),
+            "down" : (0, -1),
+            "left" : (-1, 0),
+            "right" : (1, 0),
         }
         for key in key_translation.keys():
             if key == key_pressed:
-                for shape in self.canvas.shapes:
-                    x0, y0 = shape.center
-                    if shape.selected:
-                        shape.center = (
-                            x0 + key_translation[key][0], 
-                            y0 + key_translation[key][1]
-                        )
-        for shape in self.canvas.shapes:
-            shape.draw()
+                self.canvas.translate_selected((key_translation[key][0] * magnitude,
+                                                key_translation[key][1] * magnitude))
     
     def onkeydelete(self):
         print("enter: ")
-        for i in range(len(self.canvas.shapes)):
-            if self.canvas.shapes[i].selected:
-                self.canvas.shapes[i].clear()
-                del self.canvas.shapes[i]
+        self.canvas.delete_selected()
 
     def onkeyup(self):
         self.onkeyarrow("up")
@@ -136,6 +148,18 @@ class Drawer():
 
     def onkeyright(self):
         self.onkeyarrow("right")
+
+    def onkeyupbig(self):
+        self.onkeyarrow("up", 10)
+
+    def onkeydownbig(self):
+        self.onkeyarrow("down", 10)
+
+    def onkeyleftbig(self):
+        self.onkeyarrow("left", 10)
+
+    def onkeyrightbig(self):
+        self.onkeyarrow("right", 10)
 
 
 
