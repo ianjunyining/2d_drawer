@@ -1,7 +1,7 @@
 from src.canvas import Canvas
 from src.shape import *
 from src.button import Button
-import turtle, enum
+import turtle, enum, math
 
 class Action(enum.Enum):
     SELECT = 1
@@ -132,6 +132,18 @@ class Drawer():
             if key == key_pressed:
                 self.canvas.translate_selected((key_translation[key][0] * magnitude,
                                                 key_translation[key][1] * magnitude))
+                
+    def onkeyrotate(self, key_pressed, magnitude=1):
+        key_rotate = {
+            "a" : -math.pi / 180 * magnitude,
+            "d" : math.pi / 180 * magnitude,
+        }
+        print(key_pressed)
+        for key in key_rotate.keys():
+            print("key: ", key, ", pressed: ", key_pressed)
+            if key == key_pressed:
+                print("equal")
+                self.canvas.rotate_selected(key_rotate[key])
     
     def onkeydelete(self):
         print("enter: ")
@@ -149,17 +161,12 @@ class Drawer():
     def onkeyright(self):
         self.onkeyarrow("right")
 
-    def onkeyupbig(self):
-        self.onkeyarrow("up", 10)
+    def onkeyclockwise(self):
+        self.onkeyrotate("d")
 
-    def onkeydownbig(self):
-        self.onkeyarrow("down", 10)
+    def onkeycounterclockwise(self):
+        self.onkeyrotate("a")
 
-    def onkeyleftbig(self):
-        self.onkeyarrow("left", 10)
-
-    def onkeyrightbig(self):
-        self.onkeyarrow("right", 10)
 
 
 

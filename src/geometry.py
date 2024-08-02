@@ -32,8 +32,12 @@ def distance_point_to_segment(pt1, pt2, pt):
     
     return distance
 
-def rotate(deg):
-    pass
+def rotate(pt, theta, center=(0, 0)):
+    x0, y0 = pt
+    u, v = center
+    x1 = (x0 - u) * math.cos(theta) - (y0 - v) * math.sin(theta) + u
+    y1 = (x0 - u) * math.sin(theta) + (y0 - v) * math.cos(theta) + v
+    return (x1, y1)
 
 def distance(pt1, pt2):
     x1, y1 = pt1

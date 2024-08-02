@@ -11,11 +11,14 @@ class Shape():
         self.sr = 5
         self.pen.hideturtle()
 
+    def _type(self):
+        return self.__class__.__name__
+
     def draw(self):
         pass
 
     def get_selection_points(self):
-        raise NotImplemented("Shape: get_selection_points() is not implemented")
+        raise NotImplemented(f"{self._type()}: get_selection_points() is not implemented")
 
     def draw_selection_points(self):
         for point in self.get_selection_points():
@@ -29,16 +32,16 @@ class Shape():
         self.pen.clear()
 
     def point_in_shape(self, point):
-        raise NotImplemented("Shape: point_in_shape() is not implemented")
+        raise NotImplemented(f"{self._type()}: point_in_shape() is not implemented")
     
     # delta: (dx, dy)
     def translate(self, delta):
-        raise NotImplemented("Shape: translate() is not implemented")
+        raise NotImplemented(f"{self._type()}: translate() is not implemented")
 
     # rotate around center.
     # if center is None, rotate round the shape center
-    def rotate(self, angle_in_deg, center=None):
-        raise NotImplemented("Shape: rotate() is not implemented")
+    def rotate(self, theta, center=None):
+        raise NotImplemented(f"{self._type()}: rotate() is not implemented")
 
 
 class Circle(Shape):
@@ -78,6 +81,9 @@ class Circle(Shape):
     def translate(self, delta):
         self.center = geo.translate(self.center, delta)
 
+    def rotate(self, theta, center=None):
+        pass
+
 
 class Line(Shape):
     def __init__(self, pen: turtle.Turtle, point1, point2) -> None:
@@ -104,6 +110,14 @@ class Line(Shape):
     def translate(self, delta):
         self.point1 = geo.translate(self.point1, delta)
         self.point2 = geo.translate(self.point2, delta)
+
+    def rotate(self, theta):
+        center = (
+            (self.point1[0] + self.point2[0]) / 2,
+            (self.point1[1] + self.point2[1]) / 2,
+        )
+        self.point1 = geo.rotate(self.point1, theta, center)
+        self.point2 = geo.rotate(self.point2, theta, center)
 
 
 class Polygon(Shape):
@@ -133,14 +147,16 @@ class RegularPolygon(Shape):
         self.num_sides = num_sides
         self.r = r
         self.center = center
+        self.angle = 0
 
     def draw(self):
         x0, y0 = self.center
         self.clear()
         self.pen.penup()
-        self.pen.goto(x0 + self.r, y0)
+        pts = self.get_selection_points()
+        self.pen.goto(pts[-1])
         self.pen.pendown()
-        for point in self.get_selection_points():
+        for point in pts:
             self.pen.goto(point)
         self.pen.penup()
         if self.selected:
@@ -151,11 +167,11 @@ class RegularPolygon(Shape):
         n = self.num_sides
         theta = 2 * math.pi / n
         x0, y0 = self.center
-        for i in range(1, n + 1):
+        for i in range(n):
             points.append(
                 (
-                x0 + self.r * math.cos(theta * i),
-                y0 + self.r * math.sin(theta * i)
+                x0 + self.r * math.cos(theta * i + self.angle),
+                y0 + self.r * math.sin(theta * i + self.angle)
                 )
             )
         return points
@@ -165,4 +181,7 @@ class RegularPolygon(Shape):
     
     def translate(self, delta):
         self.center = geo.translate(self.center, delta)
+
+    def rotate(self, theta, center=None):
+        self.angle += theta
     

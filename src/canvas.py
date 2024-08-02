@@ -39,9 +39,13 @@ class Canvas():
             if shape.selected:
                 shape.translate(delta)
                 shape.draw()
-
+    
     # if only one shape is selected, rotate around the center of the selected shape
     # otherwise, compute the center from the selection points of all selected shapes, 
     # and rotate all selected shapes around this center.
-    def rotate_selected(self, angle_in_deg):
-        pass
+    def rotate_selected(self, theta):
+        print("enter: ")
+        for shape in self.shapes:
+            if shape.selected:
+                shape.rotate(theta)
+                shape.draw()
