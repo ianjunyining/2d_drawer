@@ -18,6 +18,7 @@ class State(enum.Enum):
 
 class Drawer():
     def __init__(self, screen):
+        self.shift_pressed = False
         self.screen = screen
         self.screen.screensize(700, 600)
         screen_sz = self.screen.screensize()
@@ -36,11 +37,7 @@ class Drawer():
 
         self.temp_line = None
 
-        # self.canvas.shapes = [
-        #     Circle(turtle.Turtle(), 10, (0, 0)),
-        #     Line(turtle.Turtle(), (-10, 40), (50, -50)),
-        # ]
-        # self.canvas.draw()
+        
     
     def create_buttons(self):
         btn_gap = self.btn_sz[0] + self.gap
@@ -121,13 +118,14 @@ class Drawer():
         elif self.action == Action.RPOLYGON:
             self.make_regular_polygon(x, y)
     
-    def onkeyarrow(self, key_pressed, magnitude=1):
+    def onkeyarrow(self, key_pressed):
         key_translation = {
             "up" : (0, 1),
             "down" : (0, -1),
             "left" : (-1, 0),
             "right" : (1, 0),
         }
+        magnitude = 10 if self.shift_pressed else 1
         for key in key_translation.keys():
             if key == key_pressed:
                 self.canvas.translate_selected((key_translation[key][0] * magnitude,
@@ -138,15 +136,11 @@ class Drawer():
             "a" : -math.pi / 180 * magnitude,
             "d" : math.pi / 180 * magnitude,
         }
-        print(key_pressed)
         for key in key_rotate.keys():
-            print("key: ", key, ", pressed: ", key_pressed)
             if key == key_pressed:
-                print("equal")
                 self.canvas.rotate_selected(key_rotate[key])
     
     def onkeydelete(self):
-        print("enter: ")
         self.canvas.delete_selected()
 
     def onkeyup(self):

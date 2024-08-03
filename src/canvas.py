@@ -27,11 +27,9 @@ class Canvas():
                 self.shapes.append(shape)
 
     def deselect_all(self):
-        print("deselect_all")
         for shape in self.shapes:
             shape.selected = False
             shape.draw()
-            print(shape)
 
     # delta: (dx, dy)
     def translate_selected(self, delta):
@@ -44,7 +42,6 @@ class Canvas():
     # otherwise, compute the center from the selection points of all selected shapes, 
     # and rotate all selected shapes around this center.
     def rotate_selected(self, theta):
-        print("enter: ")
         for shape in self.shapes:
             if shape.selected:
                 shape.rotate(theta)
