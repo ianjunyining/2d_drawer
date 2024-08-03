@@ -31,6 +31,9 @@ class Shape():
     def clear(self):
         self.pen.clear()
 
+    def get_center(self):
+        raise NotImplemented(f"{self._type()}: get_center() is not implemented")
+        
     def point_in_shape(self, point):
         raise NotImplemented(f"{self._type()}: point_in_shape() is not implemented")
     
@@ -73,7 +76,6 @@ class Circle(Shape):
                 )
             )
         return points
-
 
     def point_in_shape(self, point):
         return geo.distance(self.center, point) < self.r

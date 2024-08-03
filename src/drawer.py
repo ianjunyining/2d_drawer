@@ -34,20 +34,15 @@ class Drawer():
         self.canvas = Canvas()
         self.action = Action.SELECT
         self.state = State.END
-
-        self.temp_line = None
-
-        
     
     def create_buttons(self):
         btn_gap = self.btn_sz[0] + self.gap
         self.buttons_map = {
             Action.SELECT: Button(turtle.Turtle(), (-self.hw + self.gap, self.hh - self.gap), self.btn_sz, "Select"),
-            Action.DESELECT: Button(turtle.Turtle(), (-self.hw + self.gap + btn_gap * 1, self.hh - self.gap), self.btn_sz, "Unselect"),
-            Action.LINE: Button(turtle.Turtle(), (-self.hw + self.gap + btn_gap * 2, self.hh - self.gap), self.btn_sz, "Line"),
-            Action.CIRCLE: Button(turtle.Turtle(), (-self.hw + self.gap + btn_gap * 3, self.hh - self.gap), self.btn_sz, "Circle"),
-            Action.POLYGON: Button(turtle.Turtle(), (-self.hw + self.gap + btn_gap * 4, self.hh - self.gap), self.btn_sz, "Polygon"),
-            Action.RPOLYGON: Button(turtle.Turtle(), (-self.hw + self.gap + btn_gap * 5, self.hh - self.gap), self.btn_sz, "RPolygon"),
+            Action.LINE: Button(turtle.Turtle(), (-self.hw + self.gap + btn_gap * 1, self.hh - self.gap), self.btn_sz, "Line"),
+            Action.CIRCLE: Button(turtle.Turtle(), (-self.hw + self.gap + btn_gap * 2, self.hh - self.gap), self.btn_sz, "Circle"),
+            Action.POLYGON: Button(turtle.Turtle(), (-self.hw + self.gap + btn_gap * 3, self.hh - self.gap), self.btn_sz, "Polygon"),
+            Action.RPOLYGON: Button(turtle.Turtle(), (-self.hw + self.gap + btn_gap * 4, self.hh - self.gap), self.btn_sz, "RPolygon"),
         }
         self.buttons_map[Action.SELECT].selected = True
         for act, btn in self.buttons_map.items():
@@ -96,12 +91,20 @@ class Drawer():
         pass
 
     def make_regular_polygon(self, x, y):
-        sides = self.screen.textinput("Enter sides", "How many sides?")
-        self.screen.listen()
-        if sides:
-            self.temp_rpolygon = RegularPolygon(turtle.Turtle(), (x, y), int(sides), 100)
-            self.temp_rpolygon.draw()
-            self.canvas.shapes.append(self.temp_rpolygon)
+        if self.action != Action.RPOLYGON:
+            return
+        if self.state == State.END:
+            self.state = State.START
+            self.temp_rpolygon = RegularPolygon(turtle.Turtle(), (x, y), 0, 0)
+        elif self.state == State.START:
+            self.state = State.END
+            sides = self.screen.textinput("Enter sides", "How many sides?")
+            self.screen.listen()
+            if sides:
+                self.temp_rpolygon.r = geo.distance(self.temp_rpolygon.center, (x, y)) 
+                self.temp_rpolygon.num_sides = int(sides)
+                self.temp_rpolygon.draw()
+                self.canvas.shapes.append(self.temp_rpolygon)
 
     def onclick(self, x, y): 
         if self.click_on_button(x, y):
