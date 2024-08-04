@@ -46,6 +46,8 @@ class Shape():
     def rotate(self, theta, center=None):
         raise NotImplemented(f"{self._type()}: rotate() is not implemented")
 
+    def scale(self, s):
+        raise NotImplemented(f"{self._type()}: scale() is not implemented")
 
 class Circle(Shape):
     def __init__(self, pen: turtle.Turtle, r, center) -> None:
@@ -83,8 +85,15 @@ class Circle(Shape):
     def translate(self, delta):
         self.center = geo.translate(self.center, delta)
 
+    def get_center(self):
+        return self.center
+
     def rotate(self, theta, center=None):
-        pass
+        if center:
+            self.center = geo.rotate(self.center, theta, center)
+
+    def scale(self, s):
+        self.r *= s
 
 
 class Line(Shape):
@@ -113,36 +122,25 @@ class Line(Shape):
         self.point1 = geo.translate(self.point1, delta)
         self.point2 = geo.translate(self.point2, delta)
 
-    def rotate(self, theta):
+    def rotate(self, theta, center=None):
+        rotate_center = center if center else self.get_center()
+        self.point1 = geo.rotate(self.point1, theta, rotate_center)
+        self.point2 = geo.rotate(self.point2, theta, rotate_center)
+
+    def get_center(self):
         center = (
             (self.point1[0] + self.point2[0]) / 2,
             (self.point1[1] + self.point2[1]) / 2,
         )
-        self.point1 = geo.rotate(self.point1, theta, center)
-        self.point2 = geo.rotate(self.point2, theta, center)
-
-
-class Polygon(Shape):
-    def __init__(self, pen: turtle.Turtle, sides) -> None:
-        super().__init__()
-        self.sides = sides
-        self.pen = pen
-
-    def draw(self):
-        for side in self.sides:
-            self.pen.goto(side)
-
-    def get_selection_points(self):
-        return self.sides
+        return center
     
-    def point_in_shape(self, point):
-        for side in self.sides:
-            bool1 = side[0] > point[0] if side[0] < 0 else side[0] < point[0]
-            bool2 = side[1] > point[1] if side[1] < 0 else side[1] < point[1]
-            if bool1 or bool2:
-                return False         
-        return True
-    
+    def scale(self, s):
+        center = self.get_center()
+        self.point1 = geo.scale(s, center, self.point1)
+        self.point2 = geo.scale(s, center, self.point2)
+
+
+
 class RegularPolygon(Shape):
     def __init__(self, pen: turtle.Turtle, center, num_sides, r) -> None:
         super().__init__(pen)
@@ -152,7 +150,6 @@ class RegularPolygon(Shape):
         self.angle = 0
 
     def draw(self):
-        x0, y0 = self.center
         self.clear()
         self.pen.penup()
         pts = self.get_selection_points()
@@ -184,6 +181,13 @@ class RegularPolygon(Shape):
     def translate(self, delta):
         self.center = geo.translate(self.center, delta)
 
+    def get_center(self):
+        return self.center
+
     def rotate(self, theta, center=None):
+        if center:
+            self.center = geo.rotate(self.center, theta, center)
         self.angle += theta
     
+    def scale(self, s):
+        self.r *= s

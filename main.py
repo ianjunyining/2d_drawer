@@ -12,8 +12,8 @@ def on_shift_press(key):
     try:
         if key == keyboard.Key.shift:
             drawer.shift_pressed = True
-        if drawer.shift_pressed:
-            print(f"Shift + {key.name} key pressed")
+#        if drawer.shift_pressed:
+#            print(f"Shift + {key.name} key pressed")
     except AttributeError:
         pass
 
@@ -21,8 +21,8 @@ def on_shift_release(key):
     try:
         if key == keyboard.Key.shift:
             drawer.shift_pressed = False
-        if drawer.shift_pressed:
-            print(f"Shift + {key.name} key released")
+#        if drawer.shift_pressed:
+#            print(f"Shift + {key.name} key released")
     except AttributeError:
         pass
     if key == keyboard.Key.esc:
@@ -65,6 +65,12 @@ screen.onkeypress(drawer.onkeyleft, "Left")
 screen.onkeypress(drawer.onkeyright, "Right")
 screen.onkeypress(drawer.onkeycounterclockwise, "a")
 screen.onkeypress(drawer.onkeyclockwise, "d")
+screen.onkeypress(drawer.onkeycounterclockwisebig, "A")
+screen.onkeypress(drawer.onkeyclockwisebig, "D")
+screen.onkeypress(drawer.onkeyscaleup, "w")
+screen.onkeypress(drawer.onkeyscaledown, "s")
+screen.onkeypress(drawer.onkeyscaleupbig, "W")
+screen.onkeypress(drawer.onkeyscaledownbig, "S")
 screen.onkeypress(drawer.onkeydelete, "BackSpace")
 screen.listen()
 screen.mainloop()

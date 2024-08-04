@@ -142,6 +142,15 @@ class Drawer():
         for key in key_rotate.keys():
             if key == key_pressed:
                 self.canvas.rotate_selected(key_rotate[key])
+
+    def onkeyscale(self, key_pressed, magnitude=1):
+        key_scale = {
+            "w" : 1 + magnitude * 0.01,
+            "s" : 1 - magnitude * 0.01,
+        }
+        for key in key_scale.keys():
+            if key == key_pressed:
+                self.canvas.scale_selected(key_scale[key])
     
     def onkeydelete(self):
         self.canvas.delete_selected()
@@ -163,6 +172,25 @@ class Drawer():
 
     def onkeycounterclockwise(self):
         self.onkeyrotate("a")
+
+    def onkeyclockwisebig(self):
+        self.onkeyrotate("d", 10)
+
+    def onkeycounterclockwisebig(self):
+        self.onkeyrotate("a", 10)
+
+    def onkeyscaleup(self):
+        self.onkeyscale("w")
+
+    def onkeyscaledown(self):
+        self.onkeyscale("s")
+
+    def onkeyscaleupbig(self):
+        self.onkeyscale("w", 10)
+
+    def onkeyscaledownbig(self):
+        self.onkeyscale("s", 10)
+
 
 
 

@@ -46,3 +46,17 @@ def distance(pt1, pt2):
 
 def translate(point : tuple, delta : tuple):
     return (point[0] + delta[0], point[1] + delta[1])
+
+def avg_points(points):
+    sum1, sum2 = 0, 0
+    for point in points:
+        sum1 += point[0]
+        sum2 += point[1]
+    return (sum1 / len(points), sum2 / len(points))
+
+def scale(s, center, point):
+    u, v = center
+    x, y = point
+    x1 = s * (x - u) + u
+    y1 = s * (y - v) + v
+    return (x1, y1)

@@ -42,7 +42,15 @@ class Canvas():
     # otherwise, compute the center from the selection points of all selected shapes, 
     # and rotate all selected shapes around this center.
     def rotate_selected(self, theta):
+        all_centers = [shape.get_center() for shape in self.shapes if shape.selected]
+        center = geo.avg_points(all_centers)
         for shape in self.shapes:
             if shape.selected:
-                shape.rotate(theta)
+                shape.rotate(theta, center)
+                shape.draw()
+
+    def scale_selected(self, s):
+        for shape in self.shapes:
+            if shape.selected:
+                shape.scale(s)
                 shape.draw()
