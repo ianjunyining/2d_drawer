@@ -9,11 +9,19 @@ class Shape():
         self.selected = False
         self.pen = pen
         self.sr = 5
-        self.pen.hideturtle()
+        self.copy_delta = (10, 0)
+        if pen:
+            self.pen.hideturtle()
 
     def _type(self):
         return self.__class__.__name__
+    
+    def set_selected(self, selected):
+        self.selected = selected
 
+    def get_selected(self):
+        return self.selected
+    
     def draw(self):
         pass
 
@@ -46,8 +54,17 @@ class Shape():
     def rotate(self, theta, center=None):
         raise NotImplemented(f"{self._type()}: rotate() is not implemented")
 
-    def scale(self, s):
+    def scale(self, s, center=None):
         raise NotImplemented(f"{self._type()}: scale() is not implemented")
+    
+    def clone_pen(self):
+        pen = turtle.Turtle()
+        pen.color(self.pen.color()[0])
+        return pen
+
+    def clone(self):
+        return NotImplemented(f"{self._type()}: scale() is not implemented")
+
 
 class Circle(Shape):
     def __init__(self, pen: turtle.Turtle, r, center) -> None:
@@ -92,8 +109,13 @@ class Circle(Shape):
         if center:
             self.center = geo.rotate(self.center, theta, center)
 
-    def scale(self, s):
+    def scale(self, s, center=None):
+        if center:
+            self.center = geo.scale(s, center, self.center)
         self.r *= s
+
+    def clone(self):
+        return Circle(self.clone_pen(), self.r, geo.translate(self.center, self.copy_delta))
 
 
 class Line(Shape):
@@ -134,20 +156,22 @@ class Line(Shape):
         )
         return center
     
-    def scale(self, s):
-        center = self.get_center()
-        self.point1 = geo.scale(s, center, self.point1)
-        self.point2 = geo.scale(s, center, self.point2)
-
+    def scale(self, s, center=None):
+        s_center = center if center else self.get_center()
+        self.point1 = geo.scale(s, s_center, self.point1)
+        self.point2 = geo.scale(s, s_center, self.point2)
+    
+    def clone(self):
+        return Line(self.clone_pen(), geo.translate(self.point1, self.copy_delta), geo.translate(self.point2, self.copy_delta))
 
 
 class RegularPolygon(Shape):
-    def __init__(self, pen: turtle.Turtle, center, num_sides, r) -> None:
+    def __init__(self, pen: turtle.Turtle, center, num_sides, r, angle=0) -> None:
         super().__init__(pen)
         self.num_sides = num_sides
         self.r = r
         self.center = center
-        self.angle = 0
+        self.angle = angle
 
     def draw(self):
         self.clear()
@@ -189,5 +213,76 @@ class RegularPolygon(Shape):
             self.center = geo.rotate(self.center, theta, center)
         self.angle += theta
     
-    def scale(self, s):
+    def scale(self, s, center=None):
+        if center:
+            self.center = geo.scale(s, center, self.center)
         self.r *= s
+    
+    def clone(self):
+        return RegularPolygon(
+            self.clone_pen(), 
+            geo.translate(self.center, self.copy_delta), 
+            self.num_sides, 
+            self.r,
+            self.angle,
+        )
+
+class CombinedShape(Shape):
+    def __init__(self, pen: turtle.Turtle, shapes) -> None:
+        super().__init__(pen)
+        self.shapes = shapes
+
+    def set_selected(self, selected):
+        self.selected = selected
+        for shape in self.shapes:
+            shape.set_selected(selected)
+
+    def clear(self):
+        for shape in self.shapes:
+            shape.clear()
+
+    def draw(self):
+        self.clear()
+        for shape in self.shapes:
+            shape.draw()
+            if self.selected:
+                shape.draw_selection_points()
+
+    def get_selection_points(self):
+        points = []
+        for shape in self.shapes:
+            points.extend(shape.get_selection_points())
+        return points
+    
+    def point_in_shape(self, point):
+        for shape in self.shapes:
+            if shape.point_in_shape(point):
+                return True
+        return False
+    
+    def translate(self, delta):
+        for shape in self.shapes:
+            shape.translate(delta)
+            shape.draw()
+
+    def get_center(self):
+        centers = [shape.get_center() for shape in self.shapes]
+        return geo.avg_points(centers)
+    
+    def rotate(self, theta, center=None):
+        r_center = center if center else self.get_center()
+        for shape in self.shapes:
+            shape.rotate(theta, r_center)
+            shape.draw()
+
+    def scale(self, s, center=None):
+        s_center = center if center else self.get_center()
+        for shape in self.shapes:
+            shape.scale(s, s_center) 
+            shape.draw()
+
+    def clone(self):
+        shapes = []
+        for shape in self.shapes:
+            shapes.append(shape.clone())
+        return CombinedShape(turtle.Turtle(), shapes)

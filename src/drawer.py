@@ -12,9 +12,18 @@ class Action(enum.Enum):
     RPOLYGON = 6
 
 
+class Color(enum.Enum):
+    BLACK = 0
+    RED = 1
+    BLUE = 2
+    GREEN = 3
+    YELLOW = 4
+
+
 class State(enum.Enum):
     START = 1
     END = 2
+
 
 class Drawer():
     def __init__(self, screen):
@@ -33,40 +42,80 @@ class Drawer():
 
         self.canvas = Canvas()
         self.action = Action.SELECT
+        self.color = Color.BLACK
         self.state = State.END
+    
+    def get_color_str(self, color: Color):
+        color_map = {
+            Color.BLACK : "black",
+            Color.RED : "red",
+            Color.BLUE : "blue",
+            Color.GREEN : "green",
+            Color.YELLOW : "yellow",
+        }
+        return color_map[color]
     
     def create_buttons(self):
         btn_gap = self.btn_sz[0] + self.gap
-        self.buttons_map = {
-            Action.SELECT: Button(turtle.Turtle(), (-self.hw + self.gap, self.hh - self.gap), self.btn_sz, "Select"),
-            Action.LINE: Button(turtle.Turtle(), (-self.hw + self.gap + btn_gap * 1, self.hh - self.gap), self.btn_sz, "Line"),
-            Action.CIRCLE: Button(turtle.Turtle(), (-self.hw + self.gap + btn_gap * 2, self.hh - self.gap), self.btn_sz, "Circle"),
-            Action.POLYGON: Button(turtle.Turtle(), (-self.hw + self.gap + btn_gap * 3, self.hh - self.gap), self.btn_sz, "Polygon"),
-            Action.RPOLYGON: Button(turtle.Turtle(), (-self.hw + self.gap + btn_gap * 4, self.hh - self.gap), self.btn_sz, "RPolygon"),
+        btn_st = -self.hw + self.gap
+        self.action_buttons = {
+            Action.SELECT: Button(turtle.Turtle(), (btn_st, self.hh - self.gap), self.btn_sz, "Select"),
+            Action.LINE: Button(turtle.Turtle(), (btn_st + btn_gap * 1, self.hh - self.gap), self.btn_sz, "Line"),
+            Action.CIRCLE: Button(turtle.Turtle(), (btn_st + btn_gap * 2, self.hh - self.gap), self.btn_sz, "Circle"),
+            Action.POLYGON: Button(turtle.Turtle(), (btn_st + btn_gap * 3, self.hh - self.gap), self.btn_sz, "Polygon"),
+            Action.RPOLYGON: Button(turtle.Turtle(), (btn_st + btn_gap * 4, self.hh - self.gap), self.btn_sz, "RPolygon"),
         }
-        self.buttons_map[Action.SELECT].selected = True
-        for act, btn in self.buttons_map.items():
+        self.action_buttons[Action.SELECT].selected = True
+        for act, btn in self.action_buttons.items():
             btn.draw()
 
-    def click_on_button(self, x, y):
+        btn_st += len(self.action_buttons.items()) * btn_gap + 20
+        self.color_buttons = {
+            Color.BLACK: Button(turtle.Turtle(), (btn_st, self.hh - self.gap), self.btn_sz, "Black"),
+            Color.RED: Button(turtle.Turtle(), (btn_st + btn_gap * 1, self.hh - self.gap), self.btn_sz, "Red"),
+            Color.BLUE: Button(turtle.Turtle(), (btn_st + btn_gap * 2, self.hh - self.gap), self.btn_sz, "Blue"),
+            Color.GREEN: Button(turtle.Turtle(), (btn_st + btn_gap * 3, self.hh - self.gap), self.btn_sz, "Green"),
+            Color.YELLOW: Button(turtle.Turtle(), (btn_st + btn_gap * 4, self.hh - self.gap), self.btn_sz, "Yellow"),
+        }
+        self.color_buttons[Color.BLACK].selected = True
+
+        for act, btn in self.color_buttons.items():
+            btn.draw()
+
+    def click_on_action_button(self, x, y):
         old_act = self.action
         new_act = None
-        for act, btn in self.buttons_map.items():
+        for act, btn in self.action_buttons.items():
             if btn.inbox((x, y)):
                 new_act = act
                 break
         if new_act and new_act != old_act:
             self.action = new_act
-            self.buttons_map[old_act].set_selection(False)
-            self.buttons_map[new_act].set_selection(True)
-        return new_act          
+            self.action_buttons[old_act].set_selection(False)
+            self.action_buttons[new_act].set_selection(True)
+        return new_act     
+
+    def click_on_color_button(self, x, y):
+        old_color = self.color
+        new_color = None
+        for color, btn in self.color_buttons.items():
+            if btn.inbox((x, y)):
+                new_color = color
+                break
+        if new_color and new_color != old_color:
+            self.color = new_color
+            self.color_buttons[old_color].set_selection(False)
+            self.color_buttons[new_color].set_selection(True)
+        return new_color     
 
     def make_line(self, x, y):
         if self.action != Action.LINE:
             return
         if self.state == State.END:
             self.state = State.START
-            self.temp_line = Line(turtle.Turtle(), (x, y), (x, y))
+            pen = turtle.Turtle()
+            pen.color(self.get_color_str(self.color))
+            self.temp_line = Line(pen, (x, y), (x, y))
             self.temp_line.draw()
         elif self.state == State.START:
             self.state = State.END
@@ -79,7 +128,9 @@ class Drawer():
             return
         if self.state == State.END:
             self.state = State.START
-            self.temp_circle = Circle(turtle.Turtle(), 0, (x, y))
+            pen = turtle.Turtle()
+            pen.color(self.get_color_str(self.color))
+            self.temp_circle = Circle(pen, 0, (x, y))
             self.temp_circle.draw()
         elif self.state == State.START:
             self.state = State.END
@@ -95,7 +146,9 @@ class Drawer():
             return
         if self.state == State.END:
             self.state = State.START
-            self.temp_rpolygon = RegularPolygon(turtle.Turtle(), (x, y), 0, 0)
+            pen = turtle.Turtle()
+            pen.color(self.get_color_str(self.color))
+            self.temp_rpolygon = RegularPolygon(pen, (x, y), 0, 0)
         elif self.state == State.START:
             self.state = State.END
             sides = self.screen.textinput("Enter sides", "How many sides?")
@@ -106,12 +159,15 @@ class Drawer():
                 self.temp_rpolygon.draw()
                 self.canvas.shapes.append(self.temp_rpolygon)
 
-    def onclick(self, x, y): 
-        if self.click_on_button(x, y):
+    def onclick(self, x, y):
+        if self.click_on_action_button(x, y):
+            # don't draw
+            pass
+        elif self.click_on_color_button(x, y):
             # don't draw
             pass
         elif self.action == Action.SELECT:
-            self.canvas.select_shapes((x, y))
+            self.canvas.select_shapes((x, y), self.shift_pressed)
         elif self.action == Action.DESELECT:
             self.canvas.deselect_all()
         elif self.action == Action.LINE:
@@ -120,7 +176,13 @@ class Drawer():
             self.make_circle(x, y)
         elif self.action == Action.RPOLYGON:
             self.make_regular_polygon(x, y)
-    
+
+    def onkeygroup(self):
+        self.canvas.combine_selected()
+
+    def onkeycopy(self):
+        self.canvas.copy_selected()
+        
     def onkeyarrow(self, key_pressed):
         key_translation = {
             "up" : (0, 1),
