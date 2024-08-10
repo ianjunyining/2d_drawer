@@ -60,3 +60,13 @@ def scale(s, center, point):
     x1 = s * (x - u) + u
     y1 = s * (y - v) + v
     return (x1, y1)
+
+def points_boundary(points):
+    X = [point[0] for point in points]
+    Y = [point[1] for point in points]
+    return min(X), max(X), min(Y), max(Y)
+
+def point_in_boundary(min_x, max_x, min_y, max_y , point):
+    return point[0] >= min_x and point[0] <= max_x \
+        and point[1] >= min_y and point[1] <= max_y
+                

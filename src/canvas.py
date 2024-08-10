@@ -30,8 +30,9 @@ class Canvas():
 
     def deselect_all(self):
         for shape in self.shapes:
-            shape.set_selected(False)
-            shape.draw()
+            if shape.get_selected():
+                shape.set_selected(False)
+                shape.draw()
 
     # delta: (dx, dy)
     def translate_selected(self, delta):

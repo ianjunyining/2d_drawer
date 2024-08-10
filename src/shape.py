@@ -165,6 +165,56 @@ class Line(Shape):
         return Line(self.clone_pen(), geo.translate(self.point1, self.copy_delta), geo.translate(self.point2, self.copy_delta))
 
 
+class Polygon(Shape):
+    def __init__(self, pen: turtle.Turtle, points) -> None:
+        super().__init__(pen)
+        self.points = points
+
+    def draw(self):
+        self.clear()
+        self.pen.penup()
+        self.pen.goto(self.points[-1])
+        self.pen.pendown()
+        for point in self.points:
+            self.pen.goto(point)
+        self.pen.penup()
+        if self.selected:
+            self.draw_selection_points()
+    
+    def get_selection_points(self):
+        return self.points
+    
+    def point_in_shape(self, point):
+        min_x, max_x, min_y, max_y = geo.points_boundary(self.points)
+        return geo.point_in_boundary(min_x, max_x, min_y, max_y, point)
+    
+    def translate(self, delta):
+        old_points = self.points
+        self.points = []
+        for point in old_points:
+            self.points.append(geo.translate(point, delta))
+    
+    def get_center(self):
+        return geo.avg_points(self.points)
+    
+    def rotate(self, theta, center=None):
+        old_points = self.points
+        self.points = []
+        rotate_center = center if center else self.get_center()
+        for point in old_points:
+            self.points.append(geo.rotate(point, theta, rotate_center))
+    
+    def scale(self, s, center=None):
+        old_points = self.points
+        self.points = []
+        s_center = center if center else self.get_center()
+        for point in old_points:
+            self.points.append(geo.scale(s, s_center, point))
+
+    def clone(self):
+        translated_pts = [geo.translate(point, self.copy_delta) for point in self.points]
+        return Polygon(self.clone_pen(), translated_pts)
+
 class RegularPolygon(Shape):
     def __init__(self, pen: turtle.Turtle, center, num_sides, r, angle=0) -> None:
         super().__init__(pen)

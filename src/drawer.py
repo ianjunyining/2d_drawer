@@ -148,8 +148,22 @@ class Drawer():
             self.temp_circle.draw()
             self.canvas.shapes.append(self.temp_circle)
 
-    def make_polygon(self):
-        pass
+    def make_polygon(self, x, y):
+        if self.action != Action.POLYGON:
+            return
+        if self.state == State.END:
+            self.state = State.START
+            pen = turtle.Turtle()
+            pen.color(self.get_color_str(self.color))
+            self.temp_polygon = Polygon(pen, [(x, y)])
+            self.temp_polygon.draw()
+        elif self.state == State.START:
+            self.temp_polygon.points.append((x, y))
+            self.temp_polygon.draw()
+            if self.shift_pressed:
+                self.state = State.END
+                self.canvas.shapes.append(self.temp_polygon)
+
 
     def make_regular_polygon(self, x, y):
         if self.action != Action.RPOLYGON:
@@ -178,14 +192,16 @@ class Drawer():
             pass
         elif self.action == Action.SELECT:
             self.canvas.select_shapes((x, y), self.shift_pressed)
-        elif self.action == Action.DESELECT:
-            self.canvas.deselect_all()
         elif self.action == Action.LINE:
             self.make_line(x, y)
         elif self.action == Action.CIRCLE:
             self.make_circle(x, y)
         elif self.action == Action.RPOLYGON:
             self.make_regular_polygon(x, y)
+        elif self.action == Action.POLYGON:
+            self.make_polygon(x, y)
+        if self.action != Action.SELECT:
+            self.canvas.deselect_all()
 
     def onkeygroup(self):
         self.canvas.combine_selected()

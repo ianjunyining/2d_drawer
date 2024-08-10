@@ -31,5 +31,15 @@ class TestGeometry(ut.TestCase):
         self.assertAlmostEqual(rotate[0], 0)
         self.assertAlmostEqual(rotate[1], math.sqrt(2))
 
+    def test_point_in_boundary1(self):
+        pt = (0, 0)
+        point_in_boundary = geo.point_in_boundary(-1, 1, -1, 1, pt)
+        self.assertTrue(point_in_boundary)
+
+    def test_point_in_boundary2(self):
+        pt = (0, 2)
+        point_in_boundary = geo.point_in_boundary(-1, 1, -1, 1, pt)
+        self.assertFalse(point_in_boundary)
+
 if __name__ == "__main__":
     ut.main()
