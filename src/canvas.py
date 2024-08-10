@@ -1,6 +1,6 @@
 import turtle
 from src.shape import *
-from src.fractal_triangle import *
+from arts.fractal_triangle import *
 
 class Canvas():
     def __init__(self) -> None:
@@ -99,13 +99,13 @@ class Canvas():
     def create_customized_arts(self, name):
         self.delete_all()
 
-        if name == "fractal_triangle":
-            shapes = make_fractal_triangle(
-                6, 
-                [[-300, -150], [0, 300], [300, -150]],
-                "blue"
-            )
-            self.shapes.append(CombinedShape(None, shapes))
+        arts_map = {
+            "fractal_triangle": FractalTriangle,
+        }
+
+        if name in arts_map:
+            art_class = arts_map[name]
+            self.shapes.append(art_class().create_combined_shape())
         else:
             raise f"Undefined customized art: {name}"
         
