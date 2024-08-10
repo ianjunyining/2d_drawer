@@ -10,6 +10,7 @@ class Action(enum.Enum):
     CIRCLE = 4
     POLYGON = 5
     RPOLYGON = 6
+    FRACTAL_TRI = 7
 
 
 class Color(enum.Enum):
@@ -63,18 +64,20 @@ class Drawer():
             Action.CIRCLE: Button(turtle.Turtle(), (btn_st_x + btn_gap * 2, btn_st_y), self.btn_sz, "Circle"),
             Action.POLYGON: Button(turtle.Turtle(), (btn_st_x + btn_gap * 3, btn_st_y), self.btn_sz, "Polygon"),
             Action.RPOLYGON: Button(turtle.Turtle(), (btn_st_x + btn_gap * 4, btn_st_y), self.btn_sz, "RPolygon"),
+            Action.FRACTAL_TRI: Button(turtle.Turtle(), (btn_st_x + btn_gap * 5, btn_st_y), self.btn_sz, "FractalTri"),
         }
         self.action_buttons[Action.SELECT].selected = True
         for _, btn in self.action_buttons.items():
             btn.draw()
 
-        btn_st_x += len(self.action_buttons.items()) * btn_gap + 20
+        # btn_st_x += len(self.action_buttons.items()) * btn_gap + 20
+        btn_st_y += self.btn_sz[1] - self.gap
         self.color_buttons = {
-            Color.BLACK: Button(turtle.Turtle(), (btn_st_x, btn_st_y), self.btn_sz, "Black"),
+            Color.BLUE: Button(turtle.Turtle(), (btn_st_x + btn_gap * 0, btn_st_y), self.btn_sz, "Blue"),
             Color.RED: Button(turtle.Turtle(), (btn_st_x + btn_gap * 1, btn_st_y), self.btn_sz, "Red"),
-            Color.BLUE: Button(turtle.Turtle(), (btn_st_x + btn_gap * 2, btn_st_y), self.btn_sz, "Blue"),
-            Color.GREEN: Button(turtle.Turtle(), (btn_st_x + btn_gap * 3, btn_st_y), self.btn_sz, "Green"),
-            Color.YELLOW: Button(turtle.Turtle(), (btn_st_x + btn_gap * 4, btn_st_y), self.btn_sz, "Yellow"),
+            Color.GREEN: Button(turtle.Turtle(), (btn_st_x + btn_gap * 2, btn_st_y), self.btn_sz, "Green"),
+            Color.YELLOW: Button(turtle.Turtle(), (btn_st_x + btn_gap * 3, btn_st_y), self.btn_sz, "Yellow"),
+            Color.BLACK: Button(turtle.Turtle(), (btn_st_x + btn_gap * 4, btn_st_y), self.btn_sz, "Black"),
         }
         self.color_buttons[Color.BLUE].selected = True
 
@@ -185,8 +188,8 @@ class Drawer():
 
     def onclick(self, x, y):
         if self.click_on_action_button(x, y):
-            # don't draw
-            pass
+            if self.action == Action.FRACTAL_TRI:
+                self.canvas.create_customized_arts("fractal_triangle")
         elif self.click_on_color_button(x, y):
             # don't draw
             pass
@@ -200,8 +203,10 @@ class Drawer():
             self.make_regular_polygon(x, y)
         elif self.action == Action.POLYGON:
             self.make_polygon(x, y)
+
         if self.action != Action.SELECT:
             self.canvas.deselect_all()
+        
 
     def onkeygroup(self):
         self.canvas.combine_selected()
