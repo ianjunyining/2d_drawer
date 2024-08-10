@@ -5,6 +5,7 @@ from functools import partial
 import turtle
 from src.drawer import Drawer
 
+########################## Setup pynput ####################################################
 # Flag to control the pynput listener thread
 stop_pynput_listener = threading.Event()
 
@@ -41,11 +42,15 @@ def close_pynput():
     print("Program terminated.")
     exit()  # Ensure the entire program exits
 
+# Set up the close event handler
+def on_close():
+    close_pynput()
+
 # Run the pynput listener in a separate thread to allow the main program to continue running
 pynput_listener_thread = threading.Thread(target=start_pynput_listener)
 pynput_listener_thread.start()
 
-
+########################## Setup window resize ####################################################
 turtle.hideturtle()
 turtle.speed(0)
 
@@ -53,11 +58,33 @@ screen = turtle.Screen()
 screen.tracer(0)
 drawer = Drawer(screen)
 
-# Set up the close event handler
-def on_close():
-    close_pynput()
+# Store the initial window size
+initial_width = screen.window_width()
+initial_height = screen.window_height()
+
+#def on_resize(new_width, new_height):
+#    print(f"Window resized to: {new_width}x{new_height}")
+
+def check_resize():
+    global initial_width, initial_height
+    current_width = screen.window_width()
+    current_height = screen.window_height()
+    
+    if current_width != initial_width or current_height != initial_height:
+        drawer.on_window_resize(current_width, current_height)
+        initial_width = current_width
+        initial_height = current_height
+    
+    # Continue checking for resize events
+    screen.ontimer(check_resize, 100)
+
+# Start checking for resize events
+check_resize()
+
+########################## Setup drawer and onkey functions ####################################################
 
 screen.getcanvas().winfo_toplevel().protocol("WM_DELETE_WINDOW", on_close)
+
 screen.onclick(drawer.onclick)
 screen.onkeypress(drawer.onkeyup, "Up")
 screen.onkeypress(drawer.onkeydown, "Down")
@@ -74,5 +101,6 @@ screen.onkeypress(drawer.onkeyscaledownbig, "S")
 screen.onkeypress(drawer.onkeydelete, "BackSpace")
 screen.onkeypress(drawer.onkeygroup, "g")
 screen.onkeypress(drawer.onkeycopy, "c")
+
 screen.listen()
 screen.mainloop()

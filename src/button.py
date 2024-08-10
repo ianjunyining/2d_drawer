@@ -27,6 +27,11 @@ class Button:
         self.pen.goto(x0 + dx / 5, y0 + dy - dy / 3)
         self.pen.write(self.txt, font=("Arial", 12))
 
+    def move(self, delta):
+        x0, y0 = self.top_left
+        self.top_left = (x0 + delta[0], y0 + delta[1])
+        self.draw()
+        
     def set_selection(self, selected: bool):
         if self.selected != selected:
             self.selected = selected

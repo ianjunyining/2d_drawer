@@ -27,22 +27,20 @@ class State(enum.Enum):
 
 class Drawer():
     def __init__(self, screen):
-        self.shift_pressed = False
         self.screen = screen
-        self.screen.screensize(700, 600)
-        screen_sz = self.screen.screensize()
-        print("screen_sz: ", screen_sz)
-        self.hw = screen_sz[0] / 2
-        self.hh = screen_sz[1] / 2 
+        self.shift_pressed = False
+        self.w = screen.window_width()
+        self.h = screen.window_height()
+        self.hw = self.w / 2 
+        self.hh = self.h / 2 
         self.gap = 5
-        self.polygon_sides = -1
         self.btn_sz = (60, -30)
 
         self.create_buttons()
 
         self.canvas = Canvas()
         self.action = Action.SELECT
-        self.color = Color.BLACK
+        self.color = Color.BLUE
         self.state = State.END
     
     def get_color_str(self, color: Color):
@@ -57,30 +55,42 @@ class Drawer():
     
     def create_buttons(self):
         btn_gap = self.btn_sz[0] + self.gap
-        btn_st = -self.hw + self.gap
+        btn_st_y = self.hh - self.gap
+        btn_st_x = -self.hw + self.gap
         self.action_buttons = {
-            Action.SELECT: Button(turtle.Turtle(), (btn_st, self.hh - self.gap), self.btn_sz, "Select"),
-            Action.LINE: Button(turtle.Turtle(), (btn_st + btn_gap * 1, self.hh - self.gap), self.btn_sz, "Line"),
-            Action.CIRCLE: Button(turtle.Turtle(), (btn_st + btn_gap * 2, self.hh - self.gap), self.btn_sz, "Circle"),
-            Action.POLYGON: Button(turtle.Turtle(), (btn_st + btn_gap * 3, self.hh - self.gap), self.btn_sz, "Polygon"),
-            Action.RPOLYGON: Button(turtle.Turtle(), (btn_st + btn_gap * 4, self.hh - self.gap), self.btn_sz, "RPolygon"),
+            Action.SELECT: Button(turtle.Turtle(), (btn_st_x, btn_st_y), self.btn_sz, "Select"),
+            Action.LINE: Button(turtle.Turtle(), (btn_st_x + btn_gap * 1, btn_st_y), self.btn_sz, "Line"),
+            Action.CIRCLE: Button(turtle.Turtle(), (btn_st_x + btn_gap * 2, btn_st_y), self.btn_sz, "Circle"),
+            Action.POLYGON: Button(turtle.Turtle(), (btn_st_x + btn_gap * 3, btn_st_y), self.btn_sz, "Polygon"),
+            Action.RPOLYGON: Button(turtle.Turtle(), (btn_st_x + btn_gap * 4, btn_st_y), self.btn_sz, "RPolygon"),
         }
         self.action_buttons[Action.SELECT].selected = True
-        for act, btn in self.action_buttons.items():
+        for _, btn in self.action_buttons.items():
             btn.draw()
 
-        btn_st += len(self.action_buttons.items()) * btn_gap + 20
+        btn_st_x += len(self.action_buttons.items()) * btn_gap + 20
         self.color_buttons = {
-            Color.BLACK: Button(turtle.Turtle(), (btn_st, self.hh - self.gap), self.btn_sz, "Black"),
-            Color.RED: Button(turtle.Turtle(), (btn_st + btn_gap * 1, self.hh - self.gap), self.btn_sz, "Red"),
-            Color.BLUE: Button(turtle.Turtle(), (btn_st + btn_gap * 2, self.hh - self.gap), self.btn_sz, "Blue"),
-            Color.GREEN: Button(turtle.Turtle(), (btn_st + btn_gap * 3, self.hh - self.gap), self.btn_sz, "Green"),
-            Color.YELLOW: Button(turtle.Turtle(), (btn_st + btn_gap * 4, self.hh - self.gap), self.btn_sz, "Yellow"),
+            Color.BLACK: Button(turtle.Turtle(), (btn_st_x, btn_st_y), self.btn_sz, "Black"),
+            Color.RED: Button(turtle.Turtle(), (btn_st_x + btn_gap * 1, btn_st_y), self.btn_sz, "Red"),
+            Color.BLUE: Button(turtle.Turtle(), (btn_st_x + btn_gap * 2, btn_st_y), self.btn_sz, "Blue"),
+            Color.GREEN: Button(turtle.Turtle(), (btn_st_x + btn_gap * 3, btn_st_y), self.btn_sz, "Green"),
+            Color.YELLOW: Button(turtle.Turtle(), (btn_st_x + btn_gap * 4, btn_st_y), self.btn_sz, "Yellow"),
         }
-        self.color_buttons[Color.BLACK].selected = True
+        self.color_buttons[Color.BLUE].selected = True
 
-        for act, btn in self.color_buttons.items():
+        for _, btn in self.color_buttons.items():
             btn.draw()
+
+    def on_window_resize(self, w, h):
+        delta = (-(w - self.w) / 2, (h - self.h) / 2)
+        self.w = w
+        self.h = h
+
+        for _, btn in self.action_buttons.items():
+            btn.move(delta)
+
+        for _, btn in self.color_buttons.items():
+            btn.move(delta)
 
     def click_on_action_button(self, x, y):
         old_act = self.action
