@@ -295,8 +295,6 @@ class CombinedShape(Shape):
         self.clear()
         for shape in self.shapes:
             shape.draw()
-            if self.selected:
-                shape.draw_selection_points()
 
     def get_selection_points(self):
         points = []

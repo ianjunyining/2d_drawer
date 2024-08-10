@@ -98,13 +98,14 @@ class Canvas():
 
     def create_customized_arts(self, name):
         self.delete_all()
-        
+
         if name == "fractal_triangle":
-            self.shapes = make_fractal_triangle(
+            shapes = make_fractal_triangle(
                 6, 
                 [[-300, -150], [0, 300], [300, -150]],
                 "blue"
             )
+            self.shapes.append(CombinedShape(None, shapes))
         else:
             raise f"Undefined customized art: {name}"
         
